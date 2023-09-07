@@ -27,30 +27,28 @@ const int axisY_stepper_accel = 1000;    // rolePerMinute Adjustable range of 28
 const int axisY_stepper_step = 40;
 
 
-const int stepper_delay_ms = 1000;
-
 bool went_home = false;
 
-void stepper_x_move(int action_x)
+void stepper_x_move(int action_x, int delay_ms)
 {
   if (action_x == 1) {digitalWrite(axisX_stepper_dir_pin, LOW);}
   else if (action_x == -1) {digitalWrite(axisX_stepper_dir_pin, HIGH);}
   if (action_x != 0)
   {
     digitalWrite(axisX_stepper_pulse_pin, HIGH);
-    delayMicroseconds(stepper_delay_ms);   
+    delayMicroseconds(delay_ms);   
     digitalWrite(axisX_stepper_pulse_pin, LOW);
   }
 }
 
-void stepper_y_move(int action_y)
+void stepper_y_move(int action_y, int delay_ms)
 {
   if (action_y == 1) {digitalWrite(axisY_stepper_dir_pin, HIGH);}
   else if (action_y == -1) {digitalWrite(axisY_stepper_dir_pin, LOW);}
   if (action_y != 0)
   {
     digitalWrite(axisY_stepper_pulse_pin, HIGH);
-    delayMicroseconds(stepper_delay_ms);   
+    delayMicroseconds(delay_ms);   
     digitalWrite(axisY_stepper_pulse_pin, LOW);
   }
 }
@@ -91,11 +89,11 @@ void setup()
   {
     if (digitalRead(axisX_limit_pin) != LOW)
     {
-      stepper_x_move(-1);
+      stepper_x_move(-1, 800);
     }
     if (digitalRead(axisY_limit_pin) != LOW)
     {
-      stepper_y_move(-1);
+      stepper_y_move(-1, 800);
     }
     //delayMicroseconds(800);   
   } while (digitalRead(axisX_limit_pin) != LOW || digitalRead(axisY_limit_pin) != LOW);
@@ -142,10 +140,10 @@ void loop()
     axisY_counter--;
   }
 
-  stepper_x_move(action_x);
-  stepper_y_move(action_y);
+  stepper_x_move(action_x, 10000);
+  stepper_y_move(action_y, 10000);
   
-  if (print_output && output_counter > 10000)
+  if (print_output && output_counter > 50000)
   {
     Serial.print("axisX_counter ");
     Serial.print(axisX_counter);
