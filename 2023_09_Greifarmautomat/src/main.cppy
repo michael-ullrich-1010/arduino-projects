@@ -14,16 +14,16 @@ const int axisX_limit = 11;
 const int axisX_stepper_1 = 8;
 const int axisX_stepper_2 = 9;
 const int axisX_stepper_maxspeed = 5000;//2048; 4096 // stepsPerRevolution change this to fit the number of steps per revolution
-const int axisX_stepper_accel = 100;         // rolePerMinute Adjustable range of 28BYJ-48 stepper is 0~17 rpm
-const int axisX_stepper_step = 2000;
+const int axisX_stepper_accel = 1000;         // rolePerMinute Adjustable range of 28BYJ-48 stepper is 0~17 rpm
+const int axisX_stepper_step = 40;
 const int axisX_counter_max = 100;
 
 const int axisY_limit = 10;
 const int axisY_stepper_1 = 6;
 const int axisY_stepper_2 = 7;
 const int axisY_stepper_maxspeed = 5000;//2048; 4096 // stepsPerRevolution change this to fit the number of steps per revolution
-const int axisY_stepper_accel = 100;         // rolePerMinute Adjustable range of 28BYJ-48 stepper is 0~17 rpm
-const int axisY_stepper_step = 2000;
+const int axisY_stepper_accel = 1000;         // rolePerMinute Adjustable range of 28BYJ-48 stepper is 0~17 rpm
+const int axisY_stepper_step = 40;
 const int axisY_counter_max = 18;
 
 
