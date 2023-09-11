@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <steppermotor.h>
 
 const bool print_output = true;
 int output_counter = 0;
@@ -27,41 +28,7 @@ const int axisY_stepper_accel = 1000;    // rolePerMinute Adjustable range of 28
 const int axisY_stepper_step = 40;
 
 
-bool went_home = false;
-
-void stepper_x_move(int action_x, int delay_ms)
-{
-  if (action_x == 1) {digitalWrite(axisX_stepper_dir_pin, LOW);}
-  else if (action_x == -1) {digitalWrite(axisX_stepper_dir_pin, HIGH);}
-  if (action_x != 0)
-  {
-    digitalWrite(axisX_stepper_pulse_pin, HIGH);
-    delayMicroseconds(delay_ms);   
-    digitalWrite(axisX_stepper_pulse_pin, LOW);
-  }
-}
-
-void stepper_y_move(int action_y, int delay_ms)
-{
-  if (action_y == 1) {digitalWrite(axisY_stepper_dir_pin, HIGH);}
-  else if (action_y == -1) {digitalWrite(axisY_stepper_dir_pin, LOW);}
-  if (action_y != 0)
-  {
-    digitalWrite(axisY_stepper_pulse_pin, HIGH);
-    delayMicroseconds(delay_ms);   
-    digitalWrite(axisY_stepper_pulse_pin, LOW);
-  }
-}
-
-void go_home()
-{
-  if (went_home == false)
-  {
-    Serial.println("Moving to home");
-
-    went_home = true;
-  }
-}
+stepperMotor stepperOne, stepperTwo;
 
 void setup()
 {
@@ -76,26 +43,30 @@ void setup()
 
   // Steppers
   pinMode(axisX_limit_pin, INPUT_PULLUP);
-  pinMode(axisX_stepper_pulse_pin, OUTPUT);
-  pinMode(axisX_stepper_dir_pin, OUTPUT);
+  stepperOne.init(axisX_stepper_pulse_pin, axisX_stepper_dir_pin, 100, HIGH);
+  stepperOne.start();
 
   pinMode(axisY_limit_pin, INPUT_PULLUP);
-  pinMode(axisY_stepper_pulse_pin, OUTPUT);
-  pinMode(axisY_stepper_dir_pin, OUTPUT);
+  stepperTwo.init(axisY_stepper_pulse_pin, axisY_stepper_dir_pin, 100, LOW);
+  stepperTwo.start();
 
-  // Go Home
+
+    // Go Home
   Serial.println("Moving to home");
   do
   {
-    if (digitalRead(axisX_limit_pin) != LOW)
-    {
-      stepper_x_move(-1, 800);
+
+    stepperOne.control();
+    stepperTwo.control();
+    
+    if(stepperOne.steps() == 2000){
+      stepperOne.changeDirection(LOW);
+      stepperOne.changeSpeed(600);
     }
-    if (digitalRead(axisY_limit_pin) != LOW)
-    {
-      stepper_y_move(-1, 800);
-    }
-    //delayMicroseconds(800);   
+    if(stepperTwo.steps() == 2000){
+      stepperTwo.changeDirection(LOW);
+      stepperTwo.changeSpeed(600);
+    }    
   } while (digitalRead(axisX_limit_pin) != LOW || digitalRead(axisY_limit_pin) != LOW);
 
   Serial.println("Went home");
@@ -139,9 +110,6 @@ void loop()
     action_y = -1;
     axisY_counter--;
   }
-
-  stepper_x_move(action_x, 10000);
-  stepper_y_move(action_y, 10000);
   
   if (print_output && output_counter > 50000)
   {
