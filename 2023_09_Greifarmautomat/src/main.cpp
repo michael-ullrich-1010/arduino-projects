@@ -9,8 +9,8 @@ const int limit_triggered = HIGH;
 
 const int joyX_minus_pin = 3;
 const int joyX_plus_pin = 2;
-const int joyY_minus_pin = 4;
-const int joyY_plus_pin = 5;
+const int joyY_minus_pin = 5;
+const int joyY_plus_pin = 4;
 
 const int stepperX_limit_pin = 8;
 const long stepperX_counter_max = 8905;
@@ -53,11 +53,11 @@ void setup()
   {
     if (digitalRead(stepperX_limit_pin) == no_limit_triggered)
     {
-      //stepperX.control();
+      stepperX.control();
     }
     if (digitalRead(stepperY_limit_pin) == no_limit_triggered)
     {
-      //stepperY.control();
+      stepperY.control();
     }
   } while (digitalRead(stepperX_limit_pin) == no_limit_triggered || digitalRead(stepperY_limit_pin) == no_limit_triggered);
 
@@ -82,7 +82,7 @@ void loop()
 
   int action_x = 0;
   int action_y = 0;
-  if (digitalRead(joyX_plus_pin) == LOW && stepperX.steps()  < stepperX_counter_max)
+  if (digitalRead(joyX_plus_pin) == LOW && stepperX.steps() < stepperX_counter_max)
   {
     action_x = 1;
   }
@@ -101,12 +101,12 @@ void loop()
   
   if (action_x == -1)
   {
-    stepperX.changeDirection(HIGH);
+    stepperX.changeDirection(LOW);
     stepperX.control();
   }
   else if (action_x == 1)
   {
-    stepperX.changeDirection(LOW);
+    stepperX.changeDirection(HIGH);
     stepperX.control();
   }
   if (action_y == -1)
