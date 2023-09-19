@@ -7,24 +7,22 @@ int output_counter = 0;
 const int no_limit_triggered = LOW;
 const int limit_triggered = HIGH;
 
-const int joyX_minus_pin = 2;
-const int joyX_plus_pin = 3;
+const int joyX_minus_pin = 3;
+const int joyX_plus_pin = 2;
 const int joyY_minus_pin = 4;
 const int joyY_plus_pin = 5;
 
 const int stepperX_limit_pin = 8;
-long stepperX_counter = 0;
-const long stepperX_counter_max = 98500;
+const long stepperX_counter_max = 8905;
 const int stepperX_pulse_pin = 6;
 const int stepperX_dir_pin = 7;
-const int stepperX_speed = 500;
+const int stepperX_speed = 100;
 
 const int stepperY_limit_pin = 11;
-long stepperY_counter = 0;
-const long stepperY_counter_max = 37500;
+const long stepperY_counter_max = 8400;
 const int stepperY_pulse_pin = 9;
 const int stepperY_dir_pin = 10;
-const int stepperY_speed = 500;
+const int stepperY_speed = 100;
 
 stepperMotor stepperX, stepperY;
 
@@ -41,7 +39,7 @@ void setup()
 
   // Steppers
   pinMode(stepperX_limit_pin, INPUT_PULLUP);
-  stepperX.init(stepperX_pulse_pin, stepperX_dir_pin, stepperX_speed, HIGH);
+  stepperX.init(stepperX_pulse_pin, stepperX_dir_pin, stepperX_speed, LOW);
   stepperX.start();
 
   pinMode(stepperY_limit_pin, INPUT_PULLUP);
@@ -55,21 +53,18 @@ void setup()
   {
     if (digitalRead(stepperX_limit_pin) == no_limit_triggered)
     {
-      Serial.println("stepperX_limit_pin");
-
       //stepperX.control();
     }
     if (digitalRead(stepperY_limit_pin) == no_limit_triggered)
     {
-      Serial.println("stepperY_limit_pin");
-     // stepperY.control();
+      //stepperY.control();
     }
   } while (digitalRead(stepperX_limit_pin) == no_limit_triggered || digitalRead(stepperY_limit_pin) == no_limit_triggered);
 
   Serial.println("Went home");
 
-  stepperX_counter = 0;
-  stepperY_counter = 0;
+  stepperX.resetSteps();
+  stepperY.resetSteps();
 
   Serial.println("Start");
 }
@@ -78,38 +73,30 @@ void loop()
 {
   if (digitalRead(stepperX_limit_pin) == limit_triggered)
   {
-    stepperX_counter = 0;
+    stepperX.resetSteps();
   }
   if (digitalRead(stepperY_limit_pin) == limit_triggered)
   {
-    stepperY_counter = 0;
+    stepperY.resetSteps();
   }
 
   int action_x = 0;
   int action_y = 0;
-  if (digitalRead(joyX_plus_pin) == LOW && stepperX_counter < stepperX_counter_max)
+  if (digitalRead(joyX_plus_pin) == LOW && stepperX.steps()  < stepperX_counter_max)
   {
-    Serial.print("X");
     action_x = 1;
-    stepperX_counter++;
   }
   if (digitalRead(joyX_minus_pin) == LOW && digitalRead(stepperX_limit_pin) == no_limit_triggered)
   {
-    Serial.print("x");
     action_x = -1;
-    stepperX_counter--;
   }
-  if (digitalRead(joyY_plus_pin) == LOW && stepperY_counter < stepperY_counter_max)
+  if (digitalRead(joyY_plus_pin) == LOW && stepperY.steps() < stepperY_counter_max)
   {
-    Serial.print("Y");
     action_y = 1;
-    stepperY_counter++;
   }
   if (digitalRead(joyY_minus_pin) == LOW && digitalRead(stepperY_limit_pin) == no_limit_triggered)
   {
-    Serial.print("y");
     action_y = -1;
-    stepperY_counter--;
   }
   
   if (action_x == -1)
@@ -136,9 +123,9 @@ void loop()
   if (print_output && output_counter > 5000)
   {
     Serial.print("stepperX_counter ");
-    Serial.print(stepperX_counter);
+    Serial.print(stepperX.steps());
     Serial.print("  stepperY ");
-    Serial.println(stepperY_counter);
+    Serial.println(stepperY.steps());
     output_counter = 0;
   }
   output_counter ++;
