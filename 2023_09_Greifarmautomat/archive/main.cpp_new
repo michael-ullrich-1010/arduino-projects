@@ -1,0 +1,32 @@
+#include <Arduino.h>
+
+const int axisX_stepper_1 = 8;
+const int axisX_stepper_2 = 9;
+const int axisY_stepper_1 = 6;
+const int axisY_stepper_2 = 7;
+
+// Steps per revolution of my motor/driver combo
+int stepCount = 200;
+ 
+void setup(){
+    pinMode(axisX_stepper_1, OUTPUT);
+    pinMode(axisX_stepper_2, OUTPUT);
+    pinMode(axisY_stepper_1, OUTPUT);
+    pinMode(axisY_stepper_2, OUTPUT);
+ 
+    digitalWrite(axisX_stepper_2, LOW);
+    digitalWrite(axisY_stepper_2, HIGH);
+}
+ 
+void loop(){
+    for(int i=0;i<stepCount;i++){
+        digitalWrite(axisX_stepper_1, HIGH);
+        digitalWrite(axisY_stepper_1, HIGH);
+        delayMicroseconds(800);
+        digitalWrite(axisX_stepper_1, LOW);
+        digitalWrite(axisY_stepper_1, LOW);
+        delayMicroseconds(800);
+    }
+ 
+    delay(1000);
+}

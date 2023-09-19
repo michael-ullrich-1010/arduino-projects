@@ -1,0 +1,25 @@
+#include <Arduino.h>
+#include <AccelStepper.h>
+
+AccelStepper stepperMotor1(1, 7, 6); // 1 = Motor shield, pins 10 and 11
+
+void setup()
+{  
+  stepperMotor1.setMaxSpeed(1000);
+  stepperMotor1.setAcceleration(500);
+  Serial.begin(9600);
+}
+
+void loop()
+{
+  // Set the target positions for both motors
+  stepperMotor1.moveTo(1000);
+
+  // Run the motors
+  stepperMotor1.run();
+
+  // Reset position for next loop
+  if (stepperMotor1.distanceToGo() == 0) {
+    stepperMotor1.setCurrentPosition(0);
+  }
+}
