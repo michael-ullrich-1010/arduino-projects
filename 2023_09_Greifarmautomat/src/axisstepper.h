@@ -10,14 +10,14 @@ class axisStepper{
   const int limit_triggered = HIGH;
 
   int limit_pin = 0;
-  int maximum = 0;
+  unsigned long maximum = 0;
 
   void init(int _pulsePin, int _dirPin, int _limitPin, unsigned long _maximum, unsigned long _delayTime, bool _direction){
     // Steppers
     limit_pin = _limitPin;
     maximum = _maximum;
     pinMode(_limitPin, INPUT_PULLUP);
-    stepper.init(_pulsePin, _dirPin, _maximum, _direction);
+    stepper.init(_pulsePin, _dirPin, _delayTime, _direction);
     stepper.start();  
   }
   
@@ -47,7 +47,7 @@ class axisStepper{
     }
   }
 
-  void move(bool _direction){
+  void move(int _direction){
     if (digitalRead(limit_pin) == limit_triggered)
     {
       stepper.resetSteps();

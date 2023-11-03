@@ -16,7 +16,7 @@ const int stepperX_dir_pin = 7;
 const int stepperX_speed = 100;
 
 const int stepperY_limit_pin = 11;
-const long stepperY_counter_max = 8400;
+const long stepperY_counter_max = 8350;
 const int stepperY_pulse_pin = 9;
 const int stepperY_dir_pin = 10;
 const int stepperY_speed = 100;
@@ -39,10 +39,7 @@ void setup()
 
   // Steppers
   stepperX.init(stepperX_pulse_pin, stepperX_dir_pin, stepperX_limit_pin, stepperX_counter_max, stepperX_speed, LOW);
-
-  stepperY.init(stepperY_pulse_pin, stepperY_dir_pin,  stepperY_limit_pin, stepperY_counter_max, stepperY_speed, LOW);
-  stepperY.start();
-
+  stepperY.init(stepperY_pulse_pin, stepperY_dir_pin, stepperY_limit_pin, stepperY_counter_max, stepperY_speed, LOW);
 
   // Go Home
   Serial.println("Moving to home");
@@ -62,8 +59,6 @@ void setup()
 
 void loop()
 {
-  int action_x = 0;
-  int action_y = 0;
   if (digitalRead(joyX_plus_pin) == LOW)
   {
     stepperX.move(1);
