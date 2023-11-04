@@ -32,6 +32,7 @@ class axisStepper{
   void goHome(void) {
     if (digitalRead(limit_pin) == no_limit_triggered)
     {
+      stepper.changeDirection(LOW);
       stepper.control();
     }
   }

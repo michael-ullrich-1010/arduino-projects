@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <axisstepper.h>
+#include <greifarmautomat.h>
 
 const bool print_output = true;
 int output_counter = 0;
@@ -21,10 +22,11 @@ const int stepperY_pulse_pin = 9;
 const int stepperY_dir_pin = 10;
 const int stepperY_speed = 100;
 
-const int gab_button_pin = 3;
+const int gab_button_pin = A3;
 
 
 axisStepper stepperX, stepperY;
+greifarmAutomat automat;
 
 void setup()
 {
@@ -37,19 +39,14 @@ void setup()
   pinMode(joyY_minus_pin, INPUT_PULLUP);
   pinMode(joyY_plus_pin, INPUT_PULLUP);
 
+  pinMode(gab_button_pin, OUTPUT);
+
   // Steppers
   stepperX.init(stepperX_pulse_pin, stepperX_dir_pin, stepperX_limit_pin, stepperX_counter_max, stepperX_speed, LOW);
   stepperY.init(stepperY_pulse_pin, stepperY_dir_pin, stepperY_limit_pin, stepperY_counter_max, stepperY_speed, LOW);
 
   // Go Home
-  Serial.println("Moving to home");
-  do
-  {
-    stepperX.goHome();
-    stepperY.goHome();
-  } while (!stepperX.atHome() || !stepperY.atHome());
-
-  Serial.println("Went home");
+  automat.goHome(stepperX, stepperY);
 
   stepperX.resetSteps();
   stepperY.resetSteps();
@@ -76,13 +73,20 @@ void loop()
     stepperY.move(-1);
   }
   
+  int sensorValue = analogRead(gab_button_pin);
+  float voltage = sensorValue * (5.0 / 1023.0);
+  if (voltage > 3) {
+    automat.goHome(stepperX, stepperY);
+  }
+
   if (print_output && output_counter > 5000)
   {
     Serial.print("stepperX_counter ");
     Serial.print(stepperX.steps());
     Serial.print("  stepperY ");
     Serial.println(stepperY.steps());
-    output_counter = 0;
+    output_counter = 0;    output_counter = 0;
   }
   output_counter ++;
 }
+
