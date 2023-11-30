@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <axisstepper.h>
-#include <greifarmautomat.h>
+#include <grippermachine.h>
 
 const bool print_output = true;
 int output_counter = 0;
@@ -22,11 +22,14 @@ const int stepperY_pulse_pin = 9;
 const int stepperY_dir_pin = 10;
 const int stepperY_speed = 100;
 
-const int gab_button_pin = A3;
+const int gabButton_pin = A3;
+const int stepperGripper_pulse_pin = A4;
+const int stepperGripper_dir_pin = A5;
+const int gripperClose_pin = A2;
 
 
 axisStepper stepperX, stepperY;
-greifarmAutomat automat;
+gripperMachine grippermachine;
 
 void setup()
 {
@@ -39,14 +42,16 @@ void setup()
   pinMode(joyY_minus_pin, INPUT_PULLUP);
   pinMode(joyY_plus_pin, INPUT_PULLUP);
 
-  pinMode(gab_button_pin, OUTPUT);
+  pinMode(gabButton_pin, OUTPUT);
+  pinMode(gripperClose_pin, OUTPUT);
 
   // Steppers
   stepperX.init(stepperX_pulse_pin, stepperX_dir_pin, stepperX_limit_pin, stepperX_counter_max, stepperX_speed, LOW);
   stepperY.init(stepperY_pulse_pin, stepperY_dir_pin, stepperY_limit_pin, stepperY_counter_max, stepperY_speed, LOW);
 
   // Go Home
-  automat.goHome(stepperX, stepperY);
+  grippermachine.init(stepperX, stepperY, stepperGripper_pulse_pin, stepperGripper_dir_pin, gripperClose_pin)
+  grippermachine.goHome();
 
   stepperX.resetSteps();
   stepperY.resetSteps();
@@ -73,10 +78,10 @@ void loop()
     stepperY.move(-1);
   }
   
-  int sensorValue = analogRead(gab_button_pin);
+  int sensorValue = analogRead(gabButton_pin);
   float voltage = sensorValue * (5.0 / 1023.0);
   if (voltage > 3) {
-    automat.goHome(stepperX, stepperY);
+    grippermachine.grabItem();
   }
 
   if (print_output && output_counter > 5000)
