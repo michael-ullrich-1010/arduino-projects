@@ -20,26 +20,32 @@ public:
 
   void init(int _stepperGripper_pulse_pin, int _stepperGripper_dir_pin, unsigned long  _stepperGripper_speed, int _gripperClose_pin) {
     stepperGripper.init(_stepperGripper_pulse_pin, _stepperGripper_dir_pin, _stepperGripper_speed, LOW);
+    stepperGripper.start();
+    stepperGripper.resetSteps();
     gripperClose_pin = _gripperClose_pin;
     pinMode(gripperClose_pin, OUTPUT);
   }
 
   void grabAndHold() {
     // lowers gripper, closes gripper, and lifts gripper
-    stepperGripper.changeDirection(LOW);
-    for (int i = 0; i < 500; i++) {
-      stepperGripper.control();
-    }
-    stepperGripper.changeDirection(HIGH);
-    for (int i = 0; i < 500; i++) {
-      stepperGripper.control();
-    }
+    do {
+        stepperGripper.changeDirection(HIGH);
+        stepperGripper.control();
+    } while (stepperGripper.steps() < 44000);
+    delay(500);
+    digitalWrite(gripperClose_pin, HIGH);
+    do {
+        stepperGripper.changeDirection(LOW);
+        stepperGripper.control();
+    } while (stepperGripper.steps() > 0);
+    goHome();
+    delay(1000);
+    release();
   }
 
   void goHome() {
     // brings gripper home
     Serial.println("Moving to home");
-    Serial.print(stepperX.get_limit_pin());
     do
     {
         stepperX.goHome();
@@ -52,13 +58,12 @@ public:
 
   void release() {
     // opens gripper
-
+    digitalWrite(gripperClose_pin, LOW);
   }
 
   void grabItem() {
     if (!grab_item_running) {
       grab_item_running = true;
-      Serial.print("  grabItem() ");
       grabAndHold();
       //goHome();
       //release();

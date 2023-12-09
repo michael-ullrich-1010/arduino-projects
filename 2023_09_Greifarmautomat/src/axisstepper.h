@@ -8,37 +8,34 @@
 class axisStepper{
   stepperMotor stepper;
 
-  
-  const int no_limit_triggered = LOW; //LOW;
-  const int limit_triggered = HIGH;
-
   bool at_home;
-  char name;
+  String name;
   int limit_pin;
   unsigned long maximum;
 
   bool checkForAtHome(void) {
-    if (!at_home) {
+    if (at_home == false) {
       int sensorValue = analogRead(limit_pin);
       float voltage = sensorValue * (5.0 / 1023.0);
-      if (voltage > 4) {
+      if (voltage > 4.5) {
         stepper.resetSteps();
         at_home = true;
+        Serial.println(name + ": At home " + String(voltage) + "V");
       }
     }
     return at_home;
   }
 
 public:
-  void init(char _name, int _pulsePin, int _dirPin, int _limitPin, unsigned long _maximum, unsigned long _delayTime, bool _direction){
-    // Steppers
+  void init(String _name, int _pulsePin, int _dirPin, int _limitPin, unsigned long _maximum, unsigned long _delayTime, bool _direction){
     at_home = false;
     name = _name;
     limit_pin = _limitPin;
     maximum = _maximum;
-    pinMode(_limitPin, OUTPUT);
+    pinMode(_limitPin, INPUT);
     stepper.init(_pulsePin, _dirPin, _delayTime, _direction);
     stepper.start();
+    stepper.resetSteps();
   }
   
   int get_limit_pin(void){
@@ -85,7 +82,6 @@ public:
     }
     else if (action == 1)
     {
-      at_home = false;
       stepper.changeDirection(HIGH);
       stepper.control();
     }

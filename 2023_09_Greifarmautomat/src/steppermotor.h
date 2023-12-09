@@ -16,7 +16,7 @@ class stepperMotor{
   
   void start(void){
     enable = 1;
-  }
+ }
   
   void resetSteps(void){
     stepCount = 0;
@@ -28,7 +28,6 @@ class stepperMotor{
     delayTime      = _delayTime;
     direction      = _direction;
     step_increment = _direction == true ? 1 : -1;
-      
     togglePulse   = LOW;
     enable        = 0;
       
@@ -47,6 +46,9 @@ class stepperMotor{
         // But each step of the motor requires two "pulses"
         if(pulseCount % 2 == 0){
           stepCount += step_increment;
+          if (stepCount < 0) {
+            stepCount = 0;
+          }
         }
   
         togglePulse = togglePulse == LOW ? HIGH : LOW;

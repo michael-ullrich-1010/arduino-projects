@@ -11,21 +11,21 @@ const int joyY_minus_pin = 5;
 const int joyY_plus_pin = 4;
 
 const int stepperX_limit_pin = A7;
-const long stepperX_counter_max = 8500;
+const long stepperX_counter_max = 2300;
 const int stepperX_pulse_pin = 9; //8;
 const int stepperX_dir_pin = 10; //7;
-const int stepperX_speed = 100;
+const unsigned long stepperX_speed = 100;
 
 const int stepperY_limit_pin = A6;
-const long stepperY_counter_max = 8905;
+const long stepperY_counter_max = 4200;
 const int stepperY_pulse_pin = 8;
 const int stepperY_dir_pin = 7;
-const int stepperY_speed = 100;
+const unsigned long stepperY_speed = 100;
 
 const int gabButton_pin = A1;
-const int stepperGripper_pulse_pin = 11;
-const int stepperGripper_dir_pin = 12;
-const int stepperGripper_speed = 1000;
+const int stepperGripper_pulse_pin = 12;
+const int stepperGripper_dir_pin = 11;
+const unsigned long stepperGripper_speed = 50;
 const int gripperClose_pin = A2;
 
 
@@ -81,7 +81,7 @@ void loop()
   
   int sensorValue = analogRead(gabButton_pin);
   float voltage = sensorValue * (5.0 / 1023.0);
-  if (voltage > 3) {
+  if (voltage > 4) {
     grippermachine.grabItem();
   }
 
