@@ -10,22 +10,23 @@ const int joyX_plus_pin = 2;
 const int joyY_minus_pin = 5;
 const int joyY_plus_pin = 4;
 
-const int stepperX_limit_pin = 8;
-const long stepperX_counter_max = 8905;
-const int stepperX_pulse_pin = 6;
-const int stepperX_dir_pin = 7;
-const int stepperX_speed =100;
+const int stepperX_limit_pin = A7;
+const long stepperX_counter_max = 8500;
+const int stepperX_pulse_pin = 9; //8;
+const int stepperX_dir_pin = 10; //7;
+const int stepperX_speed = 100;
 
-const int stepperY_limit_pin = 11;
-const long stepperY_counter_max = 8350;
-const int stepperY_pulse_pin = A7;//9;
-const int stepperY_dir_pin = A5; //10;
+const int stepperY_limit_pin = A6;
+const long stepperY_counter_max = 8905;
+const int stepperY_pulse_pin = 8;
+const int stepperY_dir_pin = 7;
 const int stepperY_speed = 100;
 
 const int gabButton_pin = A1;
-const int stepperGripper_pulse_pin = A7;
-const int stepperGripper_dir_pin = A5;
-const int gripperClose_pin = A3;
+const int stepperGripper_pulse_pin = 11;
+const int stepperGripper_dir_pin = 12;
+const int stepperGripper_speed = 1000;
+const int gripperClose_pin = A2;
 
 
 axisStepper stepperX;
@@ -44,24 +45,13 @@ void setup()
   pinMode(joyY_plus_pin, INPUT_PULLUP);
 
   pinMode(gabButton_pin, OUTPUT);
-  pinMode(gripperClose_pin, OUTPUT);
-
- /*pinMode(stepperGripper_pulse_pin, OUTPUT);
-  pinMode(stepperGripper_dir_pin, OUTPUT);
-  digitalWrite(stepperGripper_pulse_pin, HIGH);
-  digitalWrite(stepperGripper_dir_pin, LOW);
-  delay(100); // Wait for 10 milliseconds
-  digitalWrite(stepperGripper_pulse_pin, LOW);
-  digitalWrite(stepperGripper_dir_pin, HIGH);
-  delay(100); // Wait for 10 milliseconds
-*/
 
   // Steppers
-  stepperX.init(stepperX_pulse_pin, stepperX_dir_pin, stepperX_limit_pin, stepperX_counter_max, stepperX_speed, LOW);
-  stepperY.init(stepperY_pulse_pin, stepperY_dir_pin, stepperY_limit_pin, stepperY_counter_max, stepperY_speed, LOW);
+  stepperX.init("stepperX", stepperX_pulse_pin, stepperX_dir_pin, stepperX_limit_pin, stepperX_counter_max, stepperX_speed, LOW);
+  stepperY.init("stepperY", stepperY_pulse_pin, stepperY_dir_pin, stepperY_limit_pin, stepperY_counter_max, stepperY_speed, LOW);
 
   // Go Home
-  grippermachine.init(stepperGripper_pulse_pin, stepperGripper_dir_pin, 100, gripperClose_pin);
+  grippermachine.init(stepperGripper_pulse_pin, stepperGripper_dir_pin, stepperGripper_speed, gripperClose_pin);
   grippermachine.goHome();
 
   stepperX.resetSteps();
@@ -101,7 +91,7 @@ void loop()
     Serial.print(stepperX.steps());
     Serial.print("  stepperY ");
     Serial.println(stepperY.steps());
-    output_counter = 0;    output_counter = 0;
+    output_counter = 0;    
   }
   output_counter ++;
 }

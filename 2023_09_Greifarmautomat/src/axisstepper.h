@@ -12,18 +12,33 @@ class axisStepper{
   const int no_limit_triggered = LOW; //LOW;
   const int limit_triggered = HIGH;
 
+  bool at_home;
+  char name;
   int limit_pin;
   unsigned long maximum;
 
+  bool checkForAtHome(void) {
+    if (!at_home) {
+      int sensorValue = analogRead(limit_pin);
+      float voltage = sensorValue * (5.0 / 1023.0);
+      if (voltage > 4) {
+        stepper.resetSteps();
+        at_home = true;
+      }
+    }
+    return at_home;
+  }
+
 public:
-  void init(int _pulsePin, int _dirPin, int _limitPin, unsigned long _maximum, unsigned long _delayTime, bool _direction){
+  void init(char _name, int _pulsePin, int _dirPin, int _limitPin, unsigned long _maximum, unsigned long _delayTime, bool _direction){
     // Steppers
+    at_home = false;
+    name = _name;
     limit_pin = _limitPin;
     maximum = _maximum;
-    pinMode(_limitPin, INPUT_PULLUP);
+    pinMode(_limitPin, OUTPUT);
     stepper.init(_pulsePin, _dirPin, _delayTime, _direction);
     stepper.start();
-    Serial.println(limit_pin);
   }
   
   int get_limit_pin(void){
@@ -37,38 +52,28 @@ public:
   void resetSteps(void) {
     stepper.resetSteps();
   }
-  
+
   void goHome(void) {
-    if (digitalRead(limit_pin) == no_limit_triggered)
-    {
+    checkForAtHome();
+    if (!at_home) {
       stepper.changeDirection(LOW);
       stepper.control();
     }
   }
 
   bool atHome(void) {
-    if (digitalRead(limit_pin) == no_limit_triggered)
-    {
-      return false;
-    }
-    else
-    {
-      return true;
-    }
+    return at_home;
   }
 
   void move(int _direction){
-    if (digitalRead(limit_pin) == limit_triggered)
-    {
-      stepper.resetSteps();
-    }
+    checkForAtHome();
 
     int action = 0;
     if (_direction == 1 && stepper.steps() < maximum)
     {
       action = 1;
     }
-    if (_direction == -1 && digitalRead(limit_pin) == no_limit_triggered)
+    if (_direction == -1 && !at_home)
     {
       action = -1;
     }
@@ -80,6 +85,7 @@ public:
     }
     else if (action == 1)
     {
+      at_home = false;
       stepper.changeDirection(HIGH);
       stepper.control();
     }

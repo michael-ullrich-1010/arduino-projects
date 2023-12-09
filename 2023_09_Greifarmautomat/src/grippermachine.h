@@ -21,6 +21,7 @@ public:
   void init(int _stepperGripper_pulse_pin, int _stepperGripper_dir_pin, unsigned long  _stepperGripper_speed, int _gripperClose_pin) {
     stepperGripper.init(_stepperGripper_pulse_pin, _stepperGripper_dir_pin, _stepperGripper_speed, LOW);
     gripperClose_pin = _gripperClose_pin;
+    pinMode(gripperClose_pin, OUTPUT);
   }
 
   void grabAndHold() {
