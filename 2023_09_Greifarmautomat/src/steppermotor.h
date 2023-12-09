@@ -1,6 +1,11 @@
 // https://www.tommycoolman.com/2021/07/31/control-two-independent-stepper-motors-with-an-arduino/
 
+
+#ifndef STEPPERMOTOR_H // include guard
+#define STEPPERMOTOR_H
+
 #include <Arduino.h>
+
 
 class stepperMotor{
   public:
@@ -73,3 +78,4 @@ class stepperMotor{
   bool direction, togglePulse, enable;
 };
   
+#endif /* STEPPERMOTOR_H */

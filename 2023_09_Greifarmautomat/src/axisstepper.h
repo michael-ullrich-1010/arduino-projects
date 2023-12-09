@@ -1,24 +1,33 @@
 #include <Arduino.h>
+
+#ifndef AXISSTEPPER_H // include guard
+#define AXISSTEPPER_H
+
 #include <steppermotor.h>
 
 class axisStepper{
   stepperMotor stepper;
 
-  public:
   
-  const int no_limit_triggered = LOW;
+  const int no_limit_triggered = LOW; //LOW;
   const int limit_triggered = HIGH;
 
-  int limit_pin = 0;
-  unsigned long maximum = 0;
+  int limit_pin;
+  unsigned long maximum;
 
+public:
   void init(int _pulsePin, int _dirPin, int _limitPin, unsigned long _maximum, unsigned long _delayTime, bool _direction){
     // Steppers
     limit_pin = _limitPin;
     maximum = _maximum;
     pinMode(_limitPin, INPUT_PULLUP);
     stepper.init(_pulsePin, _dirPin, _delayTime, _direction);
-    stepper.start();  
+    stepper.start();
+    Serial.println(limit_pin);
+  }
+  
+  int get_limit_pin(void){
+    return limit_pin;
   }
   
   unsigned long steps(void){
@@ -76,4 +85,5 @@ class axisStepper{
     }
   }
 };
-  
+
+#endif 
