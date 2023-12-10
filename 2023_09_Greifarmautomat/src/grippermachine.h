@@ -12,6 +12,7 @@ class gripperMachine {
   stepperMotor stepperGripper;
   int gripperClose_pin;
   bool grab_item_running;
+  const bool print_output = true;
 
 public:
   // Constructor with member initialization list
@@ -46,14 +47,24 @@ public:
   void goHome() {
     // brings gripper home
     Serial.println("Moving to home");
+    int output_counter = 0;
     do
     {
         stepperX.goHome();
         stepperY.goHome();
+        if (print_output && output_counter > 500)
+        {
+          Serial.print(" stepperX_counter " + String(stepperX.steps()) + " " + String(stepperX.get_voltage()) + "V  ");
+          Serial.print("stepperY_counter " + String(stepperY.steps()) + " " + String(stepperY.get_voltage()) + "V  ");
+          Serial.println("");
+          output_counter = 0;    
+        }
+        output_counter ++;        
     } while (!stepperX.atHome() || !stepperY.atHome());
-
+    Serial.print("stepperX_counter " + String(stepperX.steps()) + " " + String(stepperX.get_voltage()) + "V  ");
+    Serial.print("stepperY_counter " + String(stepperY.steps()) + " " + String(stepperY.get_voltage()) + "V  ");
+    Serial.println("");
     Serial.println("Went home");
-
   }
 
   void release() {

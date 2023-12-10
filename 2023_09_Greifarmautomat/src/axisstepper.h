@@ -8,31 +8,28 @@
 class axisStepper{
   stepperMotor stepper;
 
-  bool at_home;
   String name;
   int limit_pin;
   unsigned long maximum;
+  float voltage;
 
   bool checkForAtHome(void) {
-    if (at_home == false) {
-      int sensorValue = analogRead(limit_pin);
-      float voltage = sensorValue * (5.0 / 1023.0);
-      if (voltage > 4.5) {
-        stepper.resetSteps();
-        at_home = true;
-        Serial.println(name + ": At home " + String(voltage) + "V");
-      }
+
+    if (get_voltage() > 4.5) {
+      stepper.resetSteps();
+      return true;
     }
-    return at_home;
+    else {
+      return false;
+    }
   }
 
 public:
   void init(String _name, int _pulsePin, int _dirPin, int _limitPin, unsigned long _maximum, unsigned long _delayTime, bool _direction){
-    at_home = false;
     name = _name;
     limit_pin = _limitPin;
     maximum = _maximum;
-    pinMode(_limitPin, INPUT);
+    pinMode(_limitPin, OUTPUT);
     stepper.init(_pulsePin, _dirPin, _delayTime, _direction);
     stepper.start();
     stepper.resetSteps();
@@ -46,12 +43,18 @@ public:
     return stepper.steps();
   }
   
+  float get_voltage(void){
+    int sensorValue = analogRead(limit_pin);
+    float voltage = sensorValue * (5.0 / 1023.0);    
+    return voltage;
+  }
+  
   void resetSteps(void) {
     stepper.resetSteps();
   }
 
   void goHome(void) {
-    checkForAtHome();
+    bool at_home = checkForAtHome();
     if (!at_home) {
       stepper.changeDirection(LOW);
       stepper.control();
@@ -59,12 +62,11 @@ public:
   }
 
   bool atHome(void) {
-    return at_home;
+    return checkForAtHome();
   }
 
   void move(int _direction){
-    checkForAtHome();
-
+    bool at_home = checkForAtHome();
     int action = 0;
     if (_direction == 1 && stepper.steps() < maximum)
     {

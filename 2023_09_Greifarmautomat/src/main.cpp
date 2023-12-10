@@ -14,13 +14,13 @@ const int stepperX_limit_pin = A7;
 const long stepperX_counter_max = 2300;
 const int stepperX_pulse_pin = 9; //8;
 const int stepperX_dir_pin = 10; //7;
-const unsigned long stepperX_speed = 100;
+const unsigned long stepperX_speed = 200;
 
-const int stepperY_limit_pin = A6;
+const int stepperY_limit_pin = A4;
 const long stepperY_counter_max = 4200;
 const int stepperY_pulse_pin = 8;
 const int stepperY_dir_pin = 7;
-const unsigned long stepperY_speed = 100;
+const unsigned long stepperY_speed = 200;
 
 const int gabButton_pin = A1;
 const int stepperGripper_pulse_pin = 12;
@@ -87,10 +87,10 @@ void loop()
 
   if (print_output && output_counter > 5000)
   {
-    Serial.print("stepperX_counter ");
-    Serial.print(stepperX.steps());
-    Serial.print("  stepperY ");
-    Serial.println(stepperY.steps());
+    Serial.print(String(voltage) + "  ");
+    Serial.print(" stepperX_counter " + String(stepperX.steps()) + " " + String(stepperX.get_voltage()) + "V  ");
+    Serial.print("stepperY_counter " + String(stepperY.steps()) + " " + String(stepperY.get_voltage()) + "V  ");
+    Serial.println("");
     output_counter = 0;    
   }
   output_counter ++;
