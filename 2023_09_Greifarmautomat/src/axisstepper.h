@@ -11,10 +11,8 @@ class axisStepper{
   String name;
   int limit_pin;
   unsigned long maximum;
-  float voltage;
 
   bool checkForAtHome(void) {
-
     if (get_voltage() > 4.5) {
       stepper.resetSteps();
       return true;
@@ -29,7 +27,7 @@ public:
     name = _name;
     limit_pin = _limitPin;
     maximum = _maximum;
-    pinMode(_limitPin, OUTPUT);
+    pinMode(_limitPin, INPUT);
     stepper.init(_pulsePin, _dirPin, _delayTime, _direction);
     stepper.start();
     stepper.resetSteps();
@@ -90,4 +88,4 @@ public:
   }
 };
 
-#endif 
+#endif // AXISSTEPPER_H

@@ -13,6 +13,7 @@ class gripperMachine {
   int gripperClose_pin;
   bool grab_item_running;
   const bool print_output = true;
+  const int lift_distance = 44000;
 
 public:
   // Constructor with member initialization list
@@ -24,7 +25,12 @@ public:
     stepperGripper.start();
     stepperGripper.resetSteps();
     gripperClose_pin = _gripperClose_pin;
-    pinMode(gripperClose_pin, OUTPUT);
+    pinMode(gripperClose_pin, INPUT);
+    do {
+        stepperGripper.changeDirection(LOW);
+        stepperGripper.control();
+    } while (stepperGripper.steps() < lift_distance);    
+    stepperGripper.resetSteps();
   }
 
   void grabAndHold() {
@@ -32,16 +38,13 @@ public:
     do {
         stepperGripper.changeDirection(HIGH);
         stepperGripper.control();
-    } while (stepperGripper.steps() < 44000);
+    } while (stepperGripper.steps() < lift_distance);
     delay(500);
     digitalWrite(gripperClose_pin, HIGH);
     do {
         stepperGripper.changeDirection(LOW);
         stepperGripper.control();
     } while (stepperGripper.steps() > 0);
-    goHome();
-    delay(1000);
-    release();
   }
 
   void goHome() {
@@ -76,11 +79,12 @@ public:
     if (!grab_item_running) {
       grab_item_running = true;
       grabAndHold();
-      //goHome();
-      //release();
+      goHome();
+      delay(1000);
+      release();
       grab_item_running = false;
     }
   }
 };
 
-#endif 
+#endif // GRIPPERMACHINE_H
