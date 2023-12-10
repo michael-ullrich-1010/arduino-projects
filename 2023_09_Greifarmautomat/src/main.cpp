@@ -1,29 +1,37 @@
 #include <Arduino.h>
-#include <steppermotor.h>
+#include <axisstepper.h>
+#include <grippermachine.h>
 
 const bool print_output = true;
 int output_counter = 0;
 
-const int joyX_minus_pin = 2;
-const int joyX_plus_pin = 3;
-const int joyY_minus_pin = 4;
-const int joyY_plus_pin = 5;
+const int joyX_minus_pin = 3;
+const int joyX_plus_pin = 2;
+const int joyY_minus_pin = 5;
+const int joyY_plus_pin = 4;
 
-const int stepperX_limit_pin = 11;
-long stepperX_counter = 0;
-const long stepperX_counter_max = 98500;
-const int stepperX_pulse_pin = 8;
-const int stepperX_dir_pin = 9;
-const int stepperX_speed = 50;
+const int stepperX_limit_pin = A7;
+const long stepperX_counter_max = 2300;
+const int stepperX_pulse_pin = 9; //8;
+const int stepperX_dir_pin = 10; //7;
+const unsigned long stepperX_speed = 200;
 
-const int stepperY_limit_pin = 10;
-long stepperY_counter = 0;
-const long stepperY_counter_max = 37500;
-const int stepperY_pulse_pin = 6;
+const int stepperY_limit_pin = A4;
+const long stepperY_counter_max = 4200;
+const int stepperY_pulse_pin = 8;
 const int stepperY_dir_pin = 7;
-const int stepperY_speed = 150;
+const unsigned long stepperY_speed = 200;
 
-stepperMotor stepperX, stepperY;
+const int gabButton_pin = A1;
+const int stepperGripper_pulse_pin = 12;
+const int stepperGripper_dir_pin = 11;
+const unsigned long stepperGripper_speed = 50;
+const int gripperClose_pin = A2;
+
+
+axisStepper stepperX;
+axisStepper stepperY;
+gripperMachine grippermachine(stepperX, stepperY);
 
 void setup()
 {
@@ -36,100 +44,55 @@ void setup()
   pinMode(joyY_minus_pin, INPUT_PULLUP);
   pinMode(joyY_plus_pin, INPUT_PULLUP);
 
+  pinMode(gabButton_pin, OUTPUT);
+
   // Steppers
-  pinMode(stepperX_limit_pin, INPUT_PULLUP);
-  stepperX.init(stepperX_pulse_pin, stepperX_dir_pin, stepperX_speed, HIGH);
-  stepperX.start();
+  stepperX.init("stepperX", stepperX_pulse_pin, stepperX_dir_pin, stepperX_limit_pin, stepperX_counter_max, stepperX_speed, LOW);
+  stepperY.init("stepperY", stepperY_pulse_pin, stepperY_dir_pin, stepperY_limit_pin, stepperY_counter_max, stepperY_speed, LOW);
 
-  pinMode(stepperY_limit_pin, INPUT_PULLUP);
-  stepperY.init(stepperY_pulse_pin, stepperY_dir_pin, stepperY_speed, LOW);
-  stepperY.start();
+  // Go Home
+  grippermachine.init(stepperGripper_pulse_pin, stepperGripper_dir_pin, stepperGripper_speed, gripperClose_pin);
+  grippermachine.goHome();
 
-
-    // Go Home
-  Serial.println("Moving to home");
-  do
-  {
-    if (digitalRead(stepperX_limit_pin) != LOW)
-    {
-      stepperX.control();
-    }
-    if (digitalRead(stepperY_limit_pin) != LOW)
-    {
-      stepperY.control();
-    }
-  } while (digitalRead(stepperX_limit_pin) != LOW || digitalRead(stepperY_limit_pin) != LOW);
-
-  Serial.println("Went home");
-
-  stepperX_counter = 0;
-  stepperY_counter = 0;
+  stepperX.resetSteps();
+  stepperY.resetSteps();
 
   Serial.println("Start");
 }
 
 void loop()
 {
-  if (digitalRead(stepperX_limit_pin) == LOW)
+  if (digitalRead(joyX_plus_pin) == LOW)
   {
-    stepperX_counter = 0;
+    stepperX.move(1);
   }
-  if (digitalRead(stepperY_limit_pin) == LOW)
+  if (digitalRead(joyX_minus_pin) == LOW)
   {
-    stepperY_counter = 0;
+    stepperX.move(-1);
   }
-
-  int action_x = 0;
-  int action_y = 0;
-  if (digitalRead(joyX_plus_pin) == LOW && stepperX_counter < stepperX_counter_max)
+  if (digitalRead(joyY_plus_pin) == LOW)
   {
-    action_x = 1;
-    stepperX_counter++;
+    stepperY.move(1);
   }
-  if (digitalRead(joyX_minus_pin) == LOW && digitalRead(stepperX_limit_pin) != LOW)
+  if (digitalRead(joyY_minus_pin) == LOW)
   {
-    action_x = -1;
-    stepperX_counter--;
-  }
-  if (digitalRead(joyY_plus_pin) == LOW && stepperY_counter < stepperY_counter_max)
-  {
-    action_y = 1;
-    stepperY_counter++;
-  }
-  if (digitalRead(joyY_minus_pin) == LOW && digitalRead(stepperY_limit_pin) != LOW)
-  {
-    action_y = -1;
-    stepperY_counter--;
+    stepperY.move(-1);
   }
   
-  if (action_x == -1)
-  {
-    stepperX.changeDirection(HIGH);
-    stepperX.control();
-  }
-  else if (action_x == 1)
-  {
-    stepperX.changeDirection(LOW);
-    stepperX.control();
-  }
-  if (action_y == -1)
-  {
-    stepperY.changeDirection(LOW);
-    stepperY.control();
-  }
-  else if (action_y == 1)
-  {
-    stepperY.changeDirection(HIGH);
-    stepperY.control();
+  int sensorValue = analogRead(gabButton_pin);
+  float voltage = sensorValue * (5.0 / 1023.0);
+  if (voltage > 4) {
+    grippermachine.grabItem();
   }
 
   if (print_output && output_counter > 5000)
   {
-    Serial.print("stepperX_counter ");
-    Serial.print(stepperX_counter);
-    Serial.print("  stepperY ");
-    Serial.println(stepperY_counter);
-    output_counter = 0;
+    Serial.print(String(voltage) + "  ");
+    Serial.print(" stepperX_counter " + String(stepperX.steps()) + " " + String(stepperX.get_voltage()) + "V  ");
+    Serial.print("stepperY_counter " + String(stepperY.steps()) + " " + String(stepperY.get_voltage()) + "V  ");
+    Serial.println("");
+    output_counter = 0;    
   }
   output_counter ++;
 }
+

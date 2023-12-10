@@ -1,4 +1,11 @@
+// https://www.tommycoolman.com/2021/07/31/control-two-independent-stepper-motors-with-an-arduino/
+
+
+#ifndef STEPPERMOTOR_H // include guard
+#define STEPPERMOTOR_H
+
 #include <Arduino.h>
+
 
 class stepperMotor{
   public:
@@ -9,14 +16,18 @@ class stepperMotor{
   
   void start(void){
     enable = 1;
+ }
+  
+  void resetSteps(void){
+    stepCount = 0;
   }
   
   void init(int _pulsePin, int _dirPin, unsigned long _delayTime, bool _direction){
-    pulsePin      = _pulsePin;
-    dirPin        = _dirPin;
-    delayTime     = _delayTime;
-    direction     = _direction;
-      
+    pulsePin       = _pulsePin;
+    dirPin         = _dirPin;
+    delayTime      = _delayTime;
+    direction      = _direction;
+    step_increment = _direction == true ? 1 : -1;
     togglePulse   = LOW;
     enable        = 0;
       
@@ -34,7 +45,10 @@ class stepperMotor{
         // Each HIGH or LOW is a "pulse"
         // But each step of the motor requires two "pulses"
         if(pulseCount % 2 == 0){
-          stepCount++;
+          stepCount += step_increment;
+          if (stepCount < 0) {
+            stepCount = 0;
+          }
         }
   
         togglePulse = togglePulse == LOW ? HIGH : LOW;
@@ -46,6 +60,7 @@ class stepperMotor{
   
   void changeDirection(bool _direction){
     direction = _direction;
+    step_increment = _direction == true ? 1 : -1;
   }
   
   unsigned long steps(void){
@@ -60,7 +75,9 @@ class stepperMotor{
   unsigned long delayTime, deltaTime, currentTime;
   unsigned long pulseCount = 0;
   unsigned long stepCount = 0;
+  int step_increment = 1;
   int pulsePin, dirPin;
   bool direction, togglePulse, enable;
 };
   
+#endif /* STEPPERMOTOR_H */
