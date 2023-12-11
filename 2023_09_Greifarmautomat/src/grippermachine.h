@@ -13,7 +13,7 @@ class gripperMachine {
   int gripperClose_pin;
   bool grab_item_running;
   const bool print_output = true;
-  const int lift_distance = 44000;
+  const long lift_distance = 44000;
 
 public:
   // Constructor with member initialization list
@@ -41,6 +41,14 @@ public:
     } while (stepperGripper.steps() < lift_distance);
     delay(500);
     digitalWrite(gripperClose_pin, HIGH);
+    liftGrabber();
+    goHome();
+    delay(1000);
+    release();
+  }
+
+  void liftGrabber() {
+    stepperGripper.setSteps(lift_distance);
     do {
         stepperGripper.changeDirection(LOW);
         stepperGripper.control();
@@ -64,9 +72,12 @@ public:
         }
         output_counter ++;        
     } while (!stepperX.atHome() || !stepperY.atHome());
+    Serial.println("stepperX " + String(stepperX.atHome() ) + " stepperY " + String(stepperY.atHome()));
     Serial.print("stepperX_counter " + String(stepperX.steps()) + " " + String(stepperX.get_voltage()) + "V  ");
     Serial.print("stepperY_counter " + String(stepperY.steps()) + " " + String(stepperY.get_voltage()) + "V  ");
+    
     Serial.println("");
+
     Serial.println("Went home");
   }
 

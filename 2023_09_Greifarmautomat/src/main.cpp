@@ -10,7 +10,7 @@ const int joyX_plus_pin = 2;
 const int joyY_minus_pin = 5;
 const int joyY_plus_pin = 4;
 
-const int stepperX_limit_pin = A7;
+const int stepperX_limit_pin = A3;
 const long stepperX_counter_max = 2300;
 const int stepperX_pulse_pin = 9; //8;
 const int stepperX_dir_pin = 10; //7;
@@ -52,6 +52,7 @@ void setup()
 
   // Go Home
   grippermachine.init(stepperGripper_pulse_pin, stepperGripper_dir_pin, stepperGripper_speed, gripperClose_pin);
+  grippermachine.liftGrabber();
   grippermachine.goHome();
 
   stepperX.resetSteps();

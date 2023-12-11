@@ -18,6 +18,11 @@ class stepperMotor{
     enable = 1;
  }
   
+  
+  void setSteps(unsigned long steps){
+    stepCount = steps;
+  }
+
   void resetSteps(void){
     stepCount = 0;
   }

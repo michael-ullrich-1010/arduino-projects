@@ -43,8 +43,7 @@ public:
   
   float get_voltage(void){
     int sensorValue = analogRead(limit_pin);
-    float voltage = sensorValue * (5.0 / 1023.0);    
-    return voltage;
+    return sensorValue * (5.0 / 1023.0);
   }
   
   void resetSteps(void) {
